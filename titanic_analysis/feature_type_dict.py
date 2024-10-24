@@ -8,14 +8,18 @@ def create_feature_type_dict(df):
     Returns:
         dict: A dictionary classifying features into numerical and categorical types.
     """
+
+    numerical_cols = df.select_dtypes(include=['int64', 'float64']).columns.to_list()
+    categorical_cols = df.select_dtypes(include=['object', 'category', 'bool']).columns.to_list()
+
     feature_types = {
         'numerical': {
-            'continuous': [],  # Fill with continuous numerical features
-            'discrete': []  # Fill with discrete numerical features
+            'continuous': [col for col in numerical_cols if df[col].nunique() > 20 ],  # Fill with continuous numerical features
+            'discrete': [col for col in numerical_cols if df[col].nunique() <= 20 ]  # Fill with discrete numerical features
         },
         'categorical': {
-            'nominal': [],  # Fill with nominal categorical features
-            'ordinal': []  # Fill with ordinal categorical features
+            'nominal': [col for col in categorical_cols if df[col].nunique() < 5],  # Fill with nominal categorical features
+            'ordinal': [col for col in categorical_cols if df[col].nunique() > 5]  # Fill with ordinal categorical features
         }
     }
     return feature_types
